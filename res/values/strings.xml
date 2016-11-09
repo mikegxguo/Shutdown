@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="HelloWorld">There\'re some time available to shut down</string>
+    <string name="Counter">60</string>
+    <string name="app_name">Shutdown</string>
+    <string name="Cancel">Cancel</string>
+    <string name="radio_api1">90 seconds</string>
+    <string name="radio_api2">60 seconds</string>
+    <string name="radio_api3">30 seconds</string>
+    <string name="radio_api4">10 seconds</string>
+</resources>

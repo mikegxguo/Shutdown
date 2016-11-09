@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+<TextView  
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:text="@string/HelloWorld"
+    android:textSize="20dp"
+    />
+<TextView  
+    android:id="@+id/myTextView1" 
+    android:layout_width="fill_parent" 
+    android:layout_height="wrap_content" 
+    android:text="@string/Counter"
+    android:textSize="100dp"
+    />
+<Button 
+    android:text="@string/Cancel"
+    android:id="@+id/Shutdown" 
+    android:layout_width="wrap_content" 
+    android:layout_height="wrap_content"
+    android:textSize="50dp"
+    android:onClick="onCancel"
+/>
+    <RadioGroup
+        android:id="@+id/radio_group_api"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <RadioButton
+            android:id="@+id/radio_api1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_api1" />
+
+        <RadioButton
+            android:id="@+id/radio_api2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_api2" />
+
+        <RadioButton
+            android:id="@+id/radio_api3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_api3" />
+
+         <RadioButton
+            android:id="@+id/radio_api4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/radio_api4" />
+        </RadioGroup>
+
+
+</LinearLayout>
