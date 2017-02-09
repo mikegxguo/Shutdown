@@ -10,8 +10,8 @@ public class BootReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent arg1) {
         // TODO Auto-generated method stub
 
-        //Intent mService = new Intent(context, CheckBattery.class);
-        //context.startService(mService);
+//        Intent mService = new Intent(context, CheckBattery.class);
+//        context.startService(mService);
         
         Intent mActivity = new Intent(context, Shutdown.class);
         mActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

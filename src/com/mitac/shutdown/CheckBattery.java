@@ -13,7 +13,7 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.IBinder;
 import android.os.SystemClock;
-//import android.widget.Toast;
+import android.widget.Toast;
 import android.telephony.PhoneStateListener;
 import android.util.Log;
 
@@ -41,22 +41,22 @@ public class CheckBattery extends Service {
         keyguardLock.disableKeyguard(); 
 
 
-        Intent intent = new Intent(CHECK_BATTERY_ALARM);
-        intent.putExtra("msg", "CheckBattery");
-        pi = PendingIntent.getBroadcast(this, 0, intent, 0);
+//        Intent intent = new Intent(CHECK_BATTERY_ALARM);
+//        intent.putExtra("msg", "CheckBattery");
+//        pi = PendingIntent.getBroadcast(this, 0, intent, 0);
 
         // Calendar calendar=Calendar.getInstance();
         // calendar.setTimeInMillis(System.currentTimeMillis());
         // calendar.add(Calendar.SECOND, 60);
 
-        int delay = 60 * 1000;
-        am = (AlarmManager) getSystemService(ALARM_SERVICE);
-        am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delay, pi);
+//        int delay = 60 * 1000;
+//        am = (AlarmManager) getSystemService(ALARM_SERVICE);
+//        am.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() + delay, pi);
         // am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+60*1000, pi);
 
         mIntentFilter = new IntentFilter();
-        //mIntentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
-        mIntentFilter.addAction(CHECK_BATTERY_ALARM);
+        mIntentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+//        mIntentFilter.addAction(CHECK_BATTERY_ALARM);
         registerReceiver(mIntentReceiver, mIntentFilter);
     }
 
@@ -64,17 +64,19 @@ public class CheckBattery extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-//            if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
-//                mBatteryLevel = intent.getIntExtra("level", 0);
-//                mPlugged = intent.getIntExtra("plugged", 0);
-//                if (mBatteryLevel < 1 && mPlugged != BatteryManager.BATTERY_PLUGGED_AC) {
-//                    onShutdownThread();
-//               }
-//            } else 
-            if (action.equals(CHECK_BATTERY_ALARM)) {
-                    Log.d(TAG, "CHECK_BATTERY_ALARM");
+            if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
+                mBatteryLevel = intent.getIntExtra("level", 0);
+                mPlugged = intent.getIntExtra("plugged", 0);
+                Log.d(TAG, "level: "+ mBatteryLevel + " mPlugged: "+ mPlugged);
+                if (/*mBatteryLevel < 1 &&*/ mPlugged != BatteryManager.BATTERY_PLUGGED_AC) {
                     onShutdownThread();
+               }
             }
+//            else
+//            if (action.equals(CHECK_BATTERY_ALARM)) {
+//                    Log.d(TAG, "CHECK_BATTERY_ALARM");
+//                    onShutdownThread();
+//            }
         }
     };
 
@@ -86,13 +88,14 @@ public class CheckBattery extends Service {
     }
 
     public IBinder onBind(Intent intent) {
-        //Toast.makeText(getApplicationContext(), "No message", Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "onBind", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onBind");
         return null;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
+        Toast.makeText(getApplicationContext(), "onUnbind", Toast.LENGTH_SHORT).show();
         Log.d(TAG, "onUnbind");
         return super.onUnbind(intent);
     }
@@ -100,7 +103,7 @@ public class CheckBattery extends Service {
     @Override  
     public void onDestroy() {  
          Log.d(TAG, "onDestroy");
-         am.cancel(pi);
+//         am.cancel(pi);
          unregisterReceiver(mIntentReceiver);
          super.onDestroy();
     }

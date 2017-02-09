@@ -47,6 +47,10 @@ public class Shutdown extends Activity {
     private static final int MSG_AUTO_REFRESH = 0x1000;
     private int counter;
 
+    private IntentFilter mIntentFilter;
+    private int mBatteryLevel;
+    private int mPlugged;
+
     
     public void onShutdownThread() {
         Intent intent = new Intent(Intent.ACTION_REQUEST_SHUTDOWN);
@@ -54,6 +58,21 @@ public class Shutdown extends Activity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
+
+    private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
+                mBatteryLevel = intent.getIntExtra("level", 0);
+                mPlugged = intent.getIntExtra("plugged", 0);
+                Log.d(TAG, "level: "+ mBatteryLevel + " mPlugged: "+ mPlugged);
+                if (mPlugged != BatteryManager.BATTERY_PLUGGED_AC) {
+                    onShutdownThread();
+               }
+            }
+        }
+    };
 
     /** Called when the activity is first created. */
     @Override
@@ -66,6 +85,7 @@ public class Shutdown extends Activity {
         
         String time = SystemProperties.get(PROPERTY_SHUTDOWN_REMAIN, "60");
         counter = Integer.valueOf(time).intValue(); 
+        mTextView01.setText(" "+counter);
         int RADIO_ID = R.id.radio_api2;
         if(counter == 90) {
             RADIO_ID = R.id.radio_api1;
@@ -98,6 +118,10 @@ public class Shutdown extends Activity {
                         Toast.makeText(Shutdown.this, "10 seconds", Toast.LENGTH_SHORT).show();
                 }
                 SystemProperties.set(PROPERTY_SHUTDOWN_REMAIN, Integer.toString(counter));
+                if(mHandler != null && runnable!=null) {
+                    mHandler.removeCallbacks(runnable);
+                    mHandler.postDelayed(runnable, 1000);
+                }
             }
         });
         
@@ -107,9 +131,13 @@ public class Shutdown extends Activity {
         keyguardLock.disableKeyguard(); 
 
        
-        if(mHandler != null) {
-                    mHandler.postDelayed(runnable, 1000);
-        }
+//        if(mHandler != null) {
+//            mHandler.postDelayed(runnable, 1000);
+//        }
+
+        mIntentFilter = new IntentFilter();
+        mIntentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        registerReceiver(mIntentReceiver, mIntentFilter);
    }
  
     private Handler mHandler = new Handler() {
