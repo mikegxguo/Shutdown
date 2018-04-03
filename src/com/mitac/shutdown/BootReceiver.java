@@ -14,7 +14,7 @@ public class BootReceiver extends BroadcastReceiver {
         String action = intent.getAction().toString();
         if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
             // u can start your service here
-            Toast.makeText(context, "boot completed action has got", Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, "boot completed action has got", Toast.LENGTH_LONG).show();
             //return;
         }
 

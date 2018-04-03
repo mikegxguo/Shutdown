@@ -190,7 +190,7 @@ public class Shutdown extends Activity {
         String strCount = SystemProperties.get(PROPERTY_SHUTDOWN_COUNTER, "0");
         counter = Integer.valueOf(strCount).intValue();
         mCounter.setText("Counter: "+counter);
-        if(mHandler!=null && total>=counter) {
+        if(mHandler!=null && counter!=0 && total>counter) {
             mHandler.postDelayed(runnable, 1000);
         }
 
@@ -260,6 +260,9 @@ public class Shutdown extends Activity {
         SystemProperties.set(PROPERTY_SHUTDOWN_COUNTER, Integer.toString(counter));
         mCounter.setText("Counter: "+counter);
 
+        duration = 0;
+        mTextView01.setText(" "+duration);
+
         mHandler.removeCallbacks(runnable);
         mButtonStart.setEnabled(true);
     }
@@ -274,9 +277,13 @@ public class Shutdown extends Activity {
             total = temp;
             SystemProperties.set(PROPERTY_SHUTDOWN_TOTAL, Integer.toString(total));
         }
-        counter = 1;
+        counter = 0;
         SystemProperties.set(PROPERTY_SHUTDOWN_COUNTER, Integer.toString(counter));
         mCounter.setText("Counter: "+counter);
+
+        String time = SystemProperties.get(PROPERTY_SHUTDOWN_DURATION, "60");
+        duration = Integer.valueOf(time).intValue();
+        mTextView01.setText(" "+duration);
 
         if(mHandler != null && runnable!=null) {
             mHandler.removeCallbacks(runnable);
