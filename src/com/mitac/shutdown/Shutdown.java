@@ -28,13 +28,24 @@ import android.os.SystemClock;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Spinner;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.Button;
+import android.widget.ArrayAdapter;
+import android.view.View.OnKeyListener;
+import android.view.KeyEvent;
+
 import android.os.SystemProperties;
 
 public class Shutdown extends Activity {
 
     // public static final String ACTION_REBOOT = "android.intent.action.REBOOT";
     // public static final String ACTION_REQUEST_SHUTDOWN = "android.intent.action.ACTION_REQUEST_SHUTDOWN";
-    public static final String PROPERTY_SHUTDOWN_REMAIN = "persist.sys.shutdown.remain";
+    public static final String PROPERTY_SHUTDOWN_DURATION = "persist.sys.shutdown.duration";
+    public static final String PROPERTY_SHUTDOWN_COUNTER = "persist.sys.shutdown.counter";
+    public static final String PROPERTY_SHUTDOWN_TOTAL = "persist.sys.shutdown.total";
+    public static final String PROPERTY_SHUTDOWN_OPTION = "persist.sys.shutdown.option";
 
     private KeyguardManager keyguardManager;
     private String lockTag;
@@ -42,10 +53,18 @@ public class Shutdown extends Activity {
 
     private static String TAG = "Shutdown";
     private TextView mTextView01;
+    private TextView mCounter;
+    private EditText mEditTotal;
+    private Spinner spinner;
     private RadioGroup mRadioGroupAPI = null;
     private RadioButton mRadioButtonAPI1 = null;
+    private Button mButtonStart;
     private static final int MSG_AUTO_REFRESH = 0x1000;
+    private int duration;
+    private int pos;
     private int counter;
+    private int total;
+    private int option;
 
     private IntentFilter mIntentFilter;
     private int mBatteryLevel;
@@ -53,10 +72,25 @@ public class Shutdown extends Activity {
 
     
     public void onShutdownThread() {
-        Intent intent = new Intent(Intent.ACTION_REQUEST_SHUTDOWN);
-        intent.putExtra(Intent.EXTRA_KEY_CONFIRM, false);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+//        Intent intent = new Intent(Intent.ACTION_REQUEST_SHUTDOWN);
+//        intent.putExtra(Intent.EXTRA_KEY_CONFIRM, false);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        startActivity(intent);
+
+        if(option == 0) {
+            Intent intent = new Intent(Intent.ACTION_REQUEST_SHUTDOWN);
+            intent.putExtra(Intent.EXTRA_KEY_CONFIRM, false);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } else {
+            //reboot the device after a while
+            Intent intent=new Intent(Intent.ACTION_REBOOT);
+            intent.putExtra("nowait", 1);
+            intent.putExtra("interval", 1);
+            intent.putExtra("window", 0);
+            sendBroadcast(intent);
+        }
+
     }
 
     private BroadcastReceiver mIntentReceiver = new BroadcastReceiver() {
@@ -68,7 +102,7 @@ public class Shutdown extends Activity {
                 mPlugged = intent.getIntExtra("plugged", 0);
                 Log.d(TAG, "level: "+ mBatteryLevel + " mPlugged: "+ mPlugged);
                 if (mPlugged != BatteryManager.BATTERY_PLUGGED_AC) {
-                    onShutdownThread();
+                    //onShutdownThread();
                }
             }
         }
@@ -81,59 +115,106 @@ public class Shutdown extends Activity {
         Log.d(TAG, "onCreate");
         setContentView(R.layout.main);
         mTextView01 = (TextView) findViewById(R.id.myTextView1);
+        mButtonStart = (Button) findViewById(R.id.start_test);
+        mCounter = (TextView) findViewById(R.id.counter);
+
+        String strOption = SystemProperties.get(PROPERTY_SHUTDOWN_OPTION, "0");
+        option = Integer.valueOf(strOption).intValue();
+
+        String time = SystemProperties.get(PROPERTY_SHUTDOWN_DURATION, "60");
+        duration = Integer.valueOf(time).intValue();
+        mTextView01.setText(" "+duration);
+
+        spinner = (Spinner) findViewById(R.id.spinner_duration);
+        String[] curs = getResources().getStringArray(R.array.spinner_duration);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, R.layout.myspinner, curs);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+
+        if(duration == 90) pos = 0;
+        else if(duration == 60) pos = 1;
+        else if(duration == 30) pos = 2;
+        else if(duration == 10) pos = 3;
+
+        spinner.setSelection(pos,true);
+        spinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                // TODO Auto-generated method stub
+                if(position == 0) {
+                    duration = 90;
+                } else if(position == 1) {
+                    duration = 60;
+                } else if(position == 2) {
+                    duration = 30;
+                } else if(position == 3) {
+                    duration = 10;
+                }
+                //TextView tv = (TextView)view;
+                //tv.setTextColor(getResources().getColor(android.R.color.white));
+                //tv.setTextSize(12.0f);
+                //tv.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+
+                mTextView01.setText(" "+duration);
+                SystemProperties.set(PROPERTY_SHUTDOWN_DURATION, Integer.toString(duration));
+                //Toast.makeText(Shutdown.this, "onItemSelected", Toast.LENGTH_SHORT).show();
+            }
+            public void onNothingSelected(AdapterView<?> arg0) {
+                // TODO Auto-generated method stub
+            }
+        });
+
         mRadioGroupAPI = (RadioGroup) findViewById(R.id.radio_group_api);
         
-        String time = SystemProperties.get(PROPERTY_SHUTDOWN_REMAIN, "60");
-        counter = Integer.valueOf(time).intValue(); 
-        mTextView01.setText(" "+counter);
-        int RADIO_ID = R.id.radio_api2;
-        if(counter == 90) {
-            RADIO_ID = R.id.radio_api1;
-        } else if(counter == 60) {
-            RADIO_ID = R.id.radio_api2;
-        } else if(counter == 30) {
-            RADIO_ID = R.id.radio_api3;
-        } else if(counter == 10) {
-            RADIO_ID = R.id.radio_api4;
-        } else {
-            RADIO_ID = R.id.radio_api2;//default 60 seconds
-        }
+        int RADIO_ID = (option==0)?R.id.radio_shutdown:R.id.radio_reboot;
         mRadioButtonAPI1 = (RadioButton) findViewById(RADIO_ID);
         mRadioButtonAPI1.toggle();
         mRadioGroupAPI.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {              
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 // TODO Auto-generated method stub
-                if(checkedId==R.id.radio_api1){
-                        counter = 90;
-                        Toast.makeText(Shutdown.this, "90 seconds", Toast.LENGTH_SHORT).show();
-                }  else if(checkedId==R.id.radio_api2){
-                        counter = 60;
-                        Toast.makeText(Shutdown.this, "60 seconds", Toast.LENGTH_SHORT).show();
-                }  else if(checkedId==R.id.radio_api3) {
-                        counter = 30;
-                        Toast.makeText(Shutdown.this, "30 seconds", Toast.LENGTH_SHORT).show();
-                } else {
-                        counter = 10;
-                        Toast.makeText(Shutdown.this, "10 seconds", Toast.LENGTH_SHORT).show();
-                }
-                SystemProperties.set(PROPERTY_SHUTDOWN_REMAIN, Integer.toString(counter));
-                if(mHandler != null && runnable!=null) {
-                    mHandler.removeCallbacks(runnable);
-                    mHandler.postDelayed(runnable, 1000);
+                if(checkedId==R.id.radio_shutdown){
+                    option = 0;
+                    Toast.makeText(Shutdown.this, "shut down", Toast.LENGTH_SHORT).show();
+                    SystemProperties.set(PROPERTY_SHUTDOWN_OPTION, Integer.toString(option));
+                }  else if(checkedId==R.id.radio_reboot){
+                    option = 1;
+                    Toast.makeText(Shutdown.this, "reboot", Toast.LENGTH_SHORT).show();
+                    SystemProperties.set(PROPERTY_SHUTDOWN_OPTION, Integer.toString(option));
                 }
             }
         });
         
-        keyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE); 
-        lockTag =  "Shutdown"; 
-        keyguardLock = keyguardManager.newKeyguardLock(lockTag);
-        keyguardLock.disableKeyguard(); 
+        String strTotal = SystemProperties.get(PROPERTY_SHUTDOWN_TOTAL, "0");
+        total = Integer.valueOf(strTotal).intValue();
+        String strCount = SystemProperties.get(PROPERTY_SHUTDOWN_COUNTER, "0");
+        counter = Integer.valueOf(strCount).intValue();
+        mCounter.setText("Counter: "+counter);
+        if(mHandler!=null && total>=counter) {
+            mHandler.postDelayed(runnable, 1000);
+        }
 
-       
-//        if(mHandler != null) {
-//            mHandler.postDelayed(runnable, 1000);
-//        }
+        // Capture text edit key press
+        mEditTotal = (EditText) findViewById(R.id.edit_total);
+        mEditTotal.setText(""+total);
+        mEditTotal.setOnKeyListener(new OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN)
+                        && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    Toast.makeText(Shutdown.this, mEditTotal.getText(), Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+
+        keyguardManager = (KeyguardManager)getSystemService(Context.KEYGUARD_SERVICE);
+        lockTag =  "Shutdown";
+        keyguardLock = keyguardManager.newKeyguardLock(lockTag);
+        keyguardLock.disableKeyguard();
 
         mIntentFilter = new IntentFilter();
         mIntentFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
@@ -145,9 +226,12 @@ public class Shutdown extends Activity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
             case MSG_AUTO_REFRESH:
-                --counter;
-                mTextView01.setText(" "+counter);
-                if(counter == 0) {
+                mButtonStart.setEnabled(false);
+                --duration;
+                mTextView01.setText(" "+duration);
+                if(duration == 0) {
+                    ++counter;
+                    SystemProperties.set(PROPERTY_SHUTDOWN_COUNTER, Integer.toString(counter));
                     onShutdownThread();
                 }
                 break;
@@ -158,7 +242,7 @@ public class Shutdown extends Activity {
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-                if(counter > 0) {
+                if(duration > 0) {
                         mHandler.obtainMessage(MSG_AUTO_REFRESH, null).sendToTarget();
                         mHandler.postDelayed(this, 1000);
                 }
@@ -172,15 +256,48 @@ public class Shutdown extends Activity {
     }
 
     public void onCancel(View v) {
-        mHandler.removeCallbacks(runnable);        
+        counter = 0;
+        SystemProperties.set(PROPERTY_SHUTDOWN_COUNTER, Integer.toString(counter));
+        mCounter.setText("Counter: "+counter);
+
+        mHandler.removeCallbacks(runnable);
+        mButtonStart.setEnabled(true);
     }
-    
-    
+
+    public void onStartTest(View v) {
+        //mHandler.removeCallbacks(runnable);
+        String strEdit = mEditTotal.getText().toString();
+        Log.d(TAG, ""+strEdit);
+        int temp = Integer.valueOf(strEdit).intValue();
+        Log.d(TAG, "temp: "+temp+ " total: "+total);
+        if(total != temp) {
+            total = temp;
+            SystemProperties.set(PROPERTY_SHUTDOWN_TOTAL, Integer.toString(total));
+        }
+        counter = 1;
+        SystemProperties.set(PROPERTY_SHUTDOWN_COUNTER, Integer.toString(counter));
+        mCounter.setText("Counter: "+counter);
+
+        if(mHandler != null && runnable!=null) {
+            mHandler.removeCallbacks(runnable);
+            mHandler.postDelayed(runnable, 1000);
+        }
+    }
+
     public void onShutDown(View v) {
+        if(option == 0) {
             Intent intent = new Intent(Intent.ACTION_REQUEST_SHUTDOWN);
             intent.putExtra(Intent.EXTRA_KEY_CONFIRM, false);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+        } else {
+            //reboot the device after a while
+            Intent intent=new Intent(Intent.ACTION_REBOOT);
+            intent.putExtra("nowait", 1);
+            intent.putExtra("interval", 1);
+            intent.putExtra("window", 0);
+            sendBroadcast(intent);
+        }
         
 //        try {
 //            Process proc = Runtime.getRuntime()

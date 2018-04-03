@@ -1,60 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/HelloWorld"
-    android:textSize="20dp"
+    android:orientation="vertical" >
+
+<TextView
+    android:id="@+id/duration"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/duration"
     />
+
+<Spinner
+    android:id="@+id/spinner_duration"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:spinnerMode="dialog"
+    android:layout_toRightOf="@+id/duration"
+    android:entries="@array/spinner_duration"
+    />
+
 <TextView  
     android:id="@+id/myTextView1" 
     android:layout_width="fill_parent" 
     android:layout_height="wrap_content" 
+    android:layout_below="@+id/spinner_duration"
     android:text="@string/Counter"
-    android:textSize="100dp"
+    android:textSize="30dp"
+    android:textStyle="bold"
     />
-<Button 
-    android:text="@string/Cancel"
-    android:id="@+id/Shutdown" 
-    android:layout_width="wrap_content" 
+
+<TextView
+    android:id="@+id/shutdown_reboot"
+    android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:textSize="50dp"
-    android:onClick="onCancel"
-/>
-    <RadioGroup
+    android:layout_below="@+id/myTextView1"
+    android:layout_marginTop="30dp"
+    android:text="@string/shutdown_reboot"
+    />
+
+<RadioGroup
         android:id="@+id/radio_group_api"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:layout_below="@+id/shutdown_reboot"
+        android:orientation="horizontal" >
 
         <RadioButton
-            android:id="@+id/radio_api1"
+            android:id="@+id/radio_shutdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/radio_api1" />
+            android:textSize="20dp"
+            android:text="@string/shut_down" />
 
         <RadioButton
-            android:id="@+id/radio_api2"
+            android:id="@+id/radio_reboot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/radio_api2" />
+            android:textSize="20dp"
+            android:text="@string/reboot" />
+</RadioGroup>
 
-        <RadioButton
-            android:id="@+id/radio_api3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/radio_api3" />
+<TextView
+    android:id="@+id/total"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/radio_group_api"
+    android:layout_marginTop="30dp"
+    android:text="@string/total"
+    />
 
-         <RadioButton
-            android:id="@+id/radio_api4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/radio_api4" />
-        </RadioGroup>
+    <EditText
+        android:id="@+id/edit_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/radio_group_api"
+        android:layout_toRightOf="@+id/total"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="20dip"
+        android:background="@android:drawable/editbox_background"
+        android:minWidth="200dip"
+        android:textColor="#000000" />
 
+<TextView
+    android:id="@+id/counter"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/total"
+    android:layout_marginTop="10dp"
+    android:text="@string/counter"
+    />
 
-</LinearLayout>
+    <Button
+        android:id="@+id/start_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/counter"
+        android:layout_marginTop="30dp"
+        android:clickable="true"
+        android:onClick="onStartTest"
+        android:text="@string/start_test" />
+
+    <Button
+        android:id="@+id/cancel_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/counter"
+        android:layout_toRightOf="@+id/start_test"
+        android:layout_marginTop="30dp"
+        android:clickable="true"
+        android:onClick="onCancel"
+        android:text="@string/cancel_test" />
+
+</RelativeLayout>
