@@ -260,7 +260,8 @@ public class Shutdown extends Activity {
         SystemProperties.set(PROPERTY_SHUTDOWN_COUNTER, Integer.toString(counter));
         mCounter.setText("Counter: "+counter);
 
-        duration = 0;
+        String time = SystemProperties.get(PROPERTY_SHUTDOWN_DURATION, "60");
+        duration = Integer.valueOf(time).intValue();
         mTextView01.setText(" "+duration);
 
         mHandler.removeCallbacks(runnable);
