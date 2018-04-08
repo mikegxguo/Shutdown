@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="duration">Please choose one duration before shutdown  </string>
-    <string name="shutdown_reboot">Please choose your desired way</string>
+    <string name="duration">Please choose one duration before action</string>
+    <string name="shutdown_reboot">Please choose your desired operation</string>
+    <string name="suspend_tip">Please choose one duration for suspend</string>
     <string name="Counter">60</string>
     <string name="app_name">Shutdown</string>
     <string name="start_test">Start</string>
     <string name="cancel_test">Cancel</string>
     <string name="shut_down">shut down</string>
     <string name="reboot">reboot</string>
+    <string name="suspend">suspend</string>
     <string name="total">Total: </string>
     <string name="counter">Counter: </string>
 </resources>

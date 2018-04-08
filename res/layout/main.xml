@@ -31,10 +31,30 @@
     />
 
 <TextView
+    android:id="@+id/suspend"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/myTextView1"
+    android:layout_marginTop="30dp"
+    android:text="@string/suspend_tip"
+    />
+
+<Spinner
+    android:id="@+id/spinner_suspend"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:spinnerMode="dialog"
+    android:layout_below="@+id/myTextView1"
+    android:layout_toRightOf="@+id/suspend"
+    android:layout_marginTop="30dp"
+    android:entries="@array/spinner_suspend"
+    />
+
+<TextView
     android:id="@+id/shutdown_reboot"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/myTextView1"
+    android:layout_below="@+id/suspend"
     android:layout_marginTop="30dp"
     android:text="@string/shutdown_reboot"
     />
@@ -59,6 +79,14 @@
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:text="@string/reboot" />
+
+        <RadioButton
+            android:id="@+id/option_suspend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20dp"
+            android:text="@string/suspend" />
+
 </RadioGroup>
 
 <TextView
