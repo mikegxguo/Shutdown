@@ -120,11 +120,21 @@
     android:textColor="#FF0000"
     />
 
+<TextView
+    android:id="@+id/ping_fail"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/counter"
+    android:layout_marginTop="15dp"
+    android:text="@string/ping_fail"
+    android:textColor="#FF0000"
+    />
+
     <Button
         android:id="@+id/start_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/counter"
+        android:layout_below="@+id/ping_fail"
         android:layout_marginTop="30dp"
         android:clickable="true"
         android:onClick="onStartTest"
@@ -134,7 +144,7 @@
         android:id="@+id/cancel_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/counter"
+        android:layout_below="@+id/ping_fail"
         android:layout_toRightOf="@+id/start_test"
         android:layout_marginTop="30dp"
         android:clickable="true"

@@ -51,6 +51,7 @@ public class Shutdown extends Activity {
     public static final String PROPERTY_ACTION_COUNTER = "persist.sys.action.counter";
     public static final String PROPERTY_ACTION_TOTAL = "persist.sys.action.total";
     public static final String PROPERTY_ACTION_OPTION = "persist.sys.action.option";
+    public static final String PROPERTY_ACTION_PING = "persist.sys.ping.fail";
     private static final String ACTION_ALARM = "mitac.alarm";
 
     private int suspendTime;
@@ -63,6 +64,7 @@ public class Shutdown extends Activity {
 
     private static String TAG = "Shutdown";
     private TextView mTextView01;
+    private TextView mPingFail;
     private TextView mCounter;
     private EditText mEditTotal;
     private Spinner spinner;
@@ -74,12 +76,15 @@ public class Shutdown extends Activity {
     private int duration;
     private int pos;
     private int counter;
+    private int ping_fail;
     private int total;
     private int option;
 
     private IntentFilter mIntentFilter;
     private int mBatteryLevel;
     private int mPlugged;
+
+    private String ping_result;
 
     public void wakeup() {
         PowerManager pm = (PowerManager) this.getSystemService(Context.POWER_SERVICE);
@@ -193,6 +198,7 @@ public class Shutdown extends Activity {
         mTextView01 = (TextView) findViewById(R.id.myTextView1);
         mButtonStart = (Button) findViewById(R.id.start_test);
         mCounter = (TextView) findViewById(R.id.counter);
+        mPingFail = (TextView) findViewById(R.id.ping_fail);
 
         String strOption = SystemProperties.get(PROPERTY_ACTION_OPTION, "0");
         option = Integer.valueOf(strOption).intValue();
@@ -309,6 +315,11 @@ public class Shutdown extends Activity {
         String strCount = SystemProperties.get(PROPERTY_ACTION_COUNTER, "0");
         counter = Integer.valueOf(strCount).intValue();
         mCounter.setText("Counter: "+counter);
+
+        String strPing = SystemProperties.get(PROPERTY_ACTION_PING, "0");
+        ping_fail = Integer.valueOf(strPing).intValue();
+        mPingFail.setText("Fail to ping: "+ping_fail);
+
         if(mHandler!=null && counter!=0 && total>counter) {
             mHandler.postDelayed(runnable, 1000);
         }
@@ -358,6 +369,8 @@ public class Shutdown extends Activity {
                     ++counter;
                     SystemProperties.set(PROPERTY_ACTION_COUNTER, Integer.toString(counter));
                     onActionThread();
+                } else if(duration == 20) {
+                    ping();
                 }
                 break;
             }
@@ -388,6 +401,10 @@ public class Shutdown extends Activity {
         SystemProperties.set(PROPERTY_ACTION_COUNTER, Integer.toString(counter));
         mCounter.setText("Counter: "+counter);
 
+        ping_fail = 0;
+        SystemProperties.set(PROPERTY_ACTION_PING, Integer.toString(ping_fail));
+        mPingFail.setText("Fail to ping: "+ping_fail);
+
         String time = SystemProperties.get(PROPERTY_ACTION_DURATION, "60");
         duration = Integer.valueOf(time).intValue();
         mTextView01.setText(" "+duration);
@@ -417,6 +434,10 @@ public class Shutdown extends Activity {
         SystemProperties.set(PROPERTY_ACTION_COUNTER, Integer.toString(counter));
         mCounter.setText("Counter: "+counter);
 
+        ping_fail = 0;
+        SystemProperties.set(PROPERTY_ACTION_PING, Integer.toString(ping_fail));
+        mPingFail.setText("Fail to ping: "+ping_fail);
+
         String time = SystemProperties.get(PROPERTY_ACTION_DURATION, "60");
         duration = Integer.valueOf(time).intValue();
         mTextView01.setText(" "+duration);
@@ -425,6 +446,43 @@ public class Shutdown extends Activity {
             mHandler.removeCallbacks(runnable);
             mHandler.postDelayed(runnable, 1000);
         }
+    }
+
+    private String avgSpeed(String str) {
+        int position = str.indexOf("min/avg/max");
+        if (position != -1) {
+            String subStr = str.substring(position + 18);
+            position = subStr.indexOf("/");
+            subStr = subStr.substring(position + 1);
+            position = subStr.indexOf("/");
+            return subStr.substring(0, position);
+        } else {
+            return null;
+        }
+    }
+
+    private boolean ping() {
+        String[] PING = {"ping", "-w", "4", "www.sohu.com"};
+        String result = null;
+        ping_result = CommandManager.run_command(PING, "/system/bin");
+
+        //try {
+        //    Thread.sleep(2000);
+        //} catch (InterruptedException e) {
+        //    e.printStackTrace();
+        //}
+        Log.d(TAG, "END COMMAND");
+        if (avgSpeed(ping_result) != null) {
+            Log.d(TAG, "Ping SUCCESS!");
+            return true;
+        } else {
+            Log.d(TAG, "Ping FAIL!");
+            ping_fail ++;
+            SystemProperties.set(PROPERTY_ACTION_PING, Integer.toString(ping_fail));
+            mPingFail.setText("Fail to ping: "+ping_fail);
+            return false;
+        }
+
     }
 
     public void onShutDown(View v) {
