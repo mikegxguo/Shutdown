@@ -158,19 +158,23 @@ public class Shutdown extends Activity {
             return;
         }
         //XXX: only for PAVO, RTC only triggers the device at the time level(minute)
-        long init_sec = System.currentTimeMillis()/1000;
-        long next_sec = init_sec+suspendTime;
-        long init_min = init_sec/60;
-        long next_min = next_sec/60;
-        Log.d(TAG, "sec: "+init_sec+", "+next_sec);
-        Log.d(TAG, "min: "+init_min+", "+next_min);
-        if(next_min == init_min) {
-            next_min += 1;
-        } else if((next_min*60) < (10+init_sec)) {
-            next_min += 1;
+        String product = SystemProperties.get("ro.product.name", "");
+        if(product.equals("pavo")) {
+            long init_sec = System.currentTimeMillis()/1000;
+            long next_sec = init_sec+suspendTime;
+            long init_min = init_sec/60;
+            long next_min = next_sec/60;
+            Log.d(TAG, "sec: "+init_sec+", "+next_sec);
+            Log.d(TAG, "min: "+init_min+", "+next_min);
+            if(next_min == init_min) {
+                next_min += 1;
+            } else if((next_min*60) < (10+init_sec)) {
+                next_min += 1;
+            }
+            alarmManager.set(AlarmManager.RTC_WAKEUP, (next_min*60+5)*1000, pendingIntent);
+        } else {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + suspendTime*1000, pendingIntent);
         }
-        //alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + suspendTime*1000, pendingIntent);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, (next_min*60+5)*1000, pendingIntent);
     }
 
     public void unregisterAlarm() {
