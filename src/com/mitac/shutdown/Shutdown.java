@@ -116,7 +116,7 @@ public class Shutdown extends Activity {
         } else if(option == 2) {
             // Set alarm as a wakeup source
             //cancel the alarm
-            unregisterAlarm();
+            //unregisterAlarm();
             registerAlarm();
             // Go to sleep here
             PowerManager pm = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
@@ -170,12 +170,17 @@ public class Shutdown extends Activity {
             long init_min = init_sec/60;
             long next_min = next_sec/60;
             Log.d(TAG, "sec: "+init_sec+", "+next_sec);
-            Log.d(TAG, "min: "+init_min+", "+next_min);
             if(next_min == init_min) {
                 next_min += 1;
             } else if((next_min*60) < (10+init_sec)) {
                 next_min += 1;
             }
+            Log.d(TAG, "min: "+init_min+", "+next_min);
+
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd kk:mm:ss");
+            Date date = new Date((next_min*60+5)*1000);
+            Log.d(TAG, "Wake up time: "+formatter.format(date));
+
             alarmManager.set(AlarmManager.RTC_WAKEUP, (next_min*60+5)*1000, pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + suspendTime*1000, pendingIntent);
