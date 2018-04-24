@@ -178,10 +178,10 @@ public class Shutdown extends Activity {
             Log.d(TAG, "min: "+init_min+", "+next_min);
 
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy:MM:dd kk:mm:ss");
-            Date date = new Date((next_min*60+5)*1000);
+            Date date = new Date((next_min*60)*1000);
             Log.d(TAG, "Wake up time: "+formatter.format(date));
 
-            alarmManager.set(AlarmManager.RTC_WAKEUP, (next_min*60+5)*1000, pendingIntent);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, (next_min*60)*1000, pendingIntent);
         } else {
             alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + suspendTime*1000, pendingIntent);
         }
