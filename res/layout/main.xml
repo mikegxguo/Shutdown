@@ -16,26 +16,15 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:spinnerMode="dialog"
-    android:layout_toRightOf="@+id/duration"
+    android:layout_below="@+id/duration"
     android:entries="@array/spinner_duration"
-    />
-
-<TextView  
-    android:id="@+id/myTextView1" 
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:layout_below="@+id/spinner_duration"
-    android:text="@string/Counter"
-    android:textSize="30dp"
-    android:textStyle="bold"
     />
 
 <TextView
     android:id="@+id/suspend"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/myTextView1"
-    android:layout_marginTop="30dp"
+    android:layout_below="@+id/spinner_duration"
     android:text="@string/suspend_tip"
     />
 
@@ -44,9 +33,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:spinnerMode="dialog"
-    android:layout_below="@+id/myTextView1"
-    android:layout_toRightOf="@+id/suspend"
-    android:layout_marginTop="30dp"
+    android:layout_below="@+id/suspend"
     android:entries="@array/spinner_suspend"
     />
 
@@ -54,8 +41,7 @@
     android:id="@+id/shutdown_reboot"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/suspend"
-    android:layout_marginTop="30dp"
+    android:layout_below="@+id/spinner_suspend"
     android:text="@string/shutdown_reboot"
     />
 
@@ -90,11 +76,44 @@
 </RadioGroup>
 
 <TextView
-    android:id="@+id/total"
+    android:id="@+id/tv_ping"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_below="@+id/radio_group_api"
-    android:layout_marginTop="30dp"
+    android:layout_marginTop="20dp"
+    android:text="@string/ping_status"
+    />
+
+<Switch
+        android:id="@+id/switch_ping"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_below="@+id/radio_group_api"
+        android:layout_toRightOf="@+id/tv_ping"
+        android:typeface="normal"
+        android:textOff=""
+        android:textOn=""
+        android:switchMinWidth="60dp"
+        android:switchPadding="20dp" />
+
+<TextView
+    android:id="@+id/myTextView1"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/switch_ping"
+    android:layout_marginTop="20dp"
+    android:text="@string/Counter"
+    android:textSize="30dp"
+    android:textStyle="bold"
+    />
+
+<TextView
+    android:id="@+id/total"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/myTextView1"
+    android:layout_marginTop="20dp"
     android:text="@string/total"
     />
 
@@ -102,9 +121,9 @@
         android:id="@+id/edit_total"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/radio_group_api"
+        android:layout_below="@+id/myTextView1"
         android:layout_toRightOf="@+id/total"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:layout_marginRight="20dip"
         android:background="@android:drawable/editbox_background"
         android:minWidth="200dip"

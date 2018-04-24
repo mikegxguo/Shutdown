@@ -32,6 +32,8 @@ import android.widget.Spinner;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.ArrayAdapter;
 import android.view.View.OnKeyListener;
 import android.view.KeyEvent;
@@ -51,7 +53,8 @@ public class Shutdown extends Activity {
     public static final String PROPERTY_ACTION_COUNTER = "persist.sys.action.counter";
     public static final String PROPERTY_ACTION_TOTAL = "persist.sys.action.total";
     public static final String PROPERTY_ACTION_OPTION = "persist.sys.action.option";
-    public static final String PROPERTY_ACTION_PING = "persist.sys.ping.fail";
+    public static final String PROPERTY_PING_SWITCH = "persist.sys.ping.switch";
+    public static final String PROPERTY_PING_FAIL = "persist.sys.ping.fail";
     private static final String ACTION_ALARM = "mitac.alarm";
 
     private int suspendTime;
@@ -66,12 +69,15 @@ public class Shutdown extends Activity {
     private TextView mTextView01;
     private TextView mPingFail;
     private TextView mCounter;
+    private TextView mSuspendTip;
     private EditText mEditTotal;
     private Spinner spinner;
     private Spinner spinner_suspend;
     private RadioGroup mRadioGroupAPI = null;
     private RadioButton mRadioButtonAPI1 = null;
     private Button mButtonStart;
+    private Switch mSwitch;
+    private boolean mPingSwitch = false;
     private static final int MSG_AUTO_REFRESH = 0x1000;
     private int duration;
     private int pos;
@@ -251,6 +257,7 @@ public class Shutdown extends Activity {
             }
         });
 
+        mSuspendTip = (TextView) findViewById(R.id.suspend);
         String suspend = SystemProperties.get(PROPERTY_ACTION_SUSPEND, "60");
         suspendTime = Integer.valueOf(suspend).intValue();
         spinner_suspend = (Spinner) findViewById(R.id.spinner_suspend);
@@ -265,6 +272,10 @@ public class Shutdown extends Activity {
         else if(suspendTime == 10) pos = 3;
 
         spinner_suspend.setSelection(pos,true);
+        if(option == 0 || option == 1) {
+            mSuspendTip.setVisibility(View.GONE);
+            spinner_suspend.setVisibility(View.GONE);
+        }
         spinner_suspend.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 // TODO Auto-generated method stub
@@ -303,14 +314,20 @@ public class Shutdown extends Activity {
                     option = 0;
                     Toast.makeText(Shutdown.this, "shut down", Toast.LENGTH_SHORT).show();
                     SystemProperties.set(PROPERTY_ACTION_OPTION, Integer.toString(option));
+                    mSuspendTip.setVisibility(View.GONE);
+                    spinner_suspend.setVisibility(View.GONE);
                 }  else if(checkedId==R.id.radio_reboot){
                     option = 1;
                     Toast.makeText(Shutdown.this, "reboot", Toast.LENGTH_SHORT).show();
                     SystemProperties.set(PROPERTY_ACTION_OPTION, Integer.toString(option));
+                    mSuspendTip.setVisibility(View.GONE);
+                    spinner_suspend.setVisibility(View.GONE);
                 } else if(checkedId == R.id.option_suspend) {
                     option = 2;
                     Toast.makeText(Shutdown.this, "suspend", Toast.LENGTH_SHORT).show();
                     SystemProperties.set(PROPERTY_ACTION_OPTION, Integer.toString(option));
+                    mSuspendTip.setVisibility(View.VISIBLE);
+                    spinner_suspend.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -321,9 +338,31 @@ public class Shutdown extends Activity {
         counter = Integer.valueOf(strCount).intValue();
         mCounter.setText("Counter: "+counter);
 
-        String strPing = SystemProperties.get(PROPERTY_ACTION_PING, "0");
+        String strPing = SystemProperties.get(PROPERTY_PING_FAIL, "0");
         ping_fail = Integer.valueOf(strPing).intValue();
         mPingFail.setText("Fail to ping: "+ping_fail);
+
+        mPingSwitch = SystemProperties.getBoolean(PROPERTY_PING_SWITCH, false);
+
+        mSwitch = (Switch) findViewById(R.id.switch_ping);
+        mSwitch.setChecked(mPingSwitch);
+        if(mPingSwitch == false) {
+            mPingFail.setVisibility(View.GONE);
+        }
+        mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    mPingSwitch = true;
+                    mPingFail.setVisibility(View.VISIBLE);
+                    SystemProperties.set(PROPERTY_PING_SWITCH, "1");
+                }else {
+                    mPingSwitch = false;
+                    mPingFail.setVisibility(View.GONE);
+                    SystemProperties.set(PROPERTY_PING_SWITCH, "0");
+                }
+            }
+        });
 
         if(mHandler!=null && counter!=0 && total>counter) {
             mHandler.postDelayed(runnable, 1000);
@@ -374,7 +413,7 @@ public class Shutdown extends Activity {
                     ++counter;
                     SystemProperties.set(PROPERTY_ACTION_COUNTER, Integer.toString(counter));
                     onActionThread();
-                } else if(duration == 20) {
+                } else if(mPingSwitch && (duration == 20)) {
                     ping();
                 }
                 break;
@@ -407,7 +446,7 @@ public class Shutdown extends Activity {
         mCounter.setText("Counter: "+counter);
 
         ping_fail = 0;
-        SystemProperties.set(PROPERTY_ACTION_PING, Integer.toString(ping_fail));
+        SystemProperties.set(PROPERTY_PING_FAIL, Integer.toString(ping_fail));
         mPingFail.setText("Fail to ping: "+ping_fail);
 
         String time = SystemProperties.get(PROPERTY_ACTION_DURATION, "60");
@@ -440,7 +479,7 @@ public class Shutdown extends Activity {
         mCounter.setText("Counter: "+counter);
 
         ping_fail = 0;
-        SystemProperties.set(PROPERTY_ACTION_PING, Integer.toString(ping_fail));
+        SystemProperties.set(PROPERTY_PING_FAIL, Integer.toString(ping_fail));
         mPingFail.setText("Fail to ping: "+ping_fail);
 
         String time = SystemProperties.get(PROPERTY_ACTION_DURATION, "60");
@@ -483,7 +522,7 @@ public class Shutdown extends Activity {
         } else {
             Log.d(TAG, "Ping FAIL!");
             ping_fail ++;
-            SystemProperties.set(PROPERTY_ACTION_PING, Integer.toString(ping_fail));
+            SystemProperties.set(PROPERTY_PING_FAIL, Integer.toString(ping_fail));
             mPingFail.setText("Fail to ping: "+ping_fail);
             return false;
         }
