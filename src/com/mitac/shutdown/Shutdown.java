@@ -68,6 +68,7 @@ public class Shutdown extends Activity {
     private static String TAG = "Shutdown";
     private TextView mTextView01;
     private TextView mPingFail;
+    private TextView mPingTip;
     private TextView mCounter;
     private TextView mSuspendTip;
     private EditText mEditTotal;
@@ -210,6 +211,7 @@ public class Shutdown extends Activity {
         mButtonStart = (Button) findViewById(R.id.start_test);
         mCounter = (TextView) findViewById(R.id.counter);
         mPingFail = (TextView) findViewById(R.id.ping_fail);
+        mPingTip = (TextView)findViewById(R.id.tv_ping);
 
         String strOption = SystemProperties.get(PROPERTY_ACTION_OPTION, "0");
         option = Integer.valueOf(strOption).intValue();
@@ -349,6 +351,11 @@ public class Shutdown extends Activity {
         if(mPingSwitch == false) {
             mPingFail.setVisibility(View.GONE);
         }
+
+        //Hide the fucntion(ping) here
+        mPingTip.setVisibility(View.GONE);
+        mSwitch.setVisibility(View.GONE);
+
         mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
         @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
