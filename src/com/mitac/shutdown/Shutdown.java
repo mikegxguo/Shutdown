@@ -128,6 +128,21 @@ public class Shutdown extends Activity {
             // Go to sleep here
             PowerManager pm = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
             pm.goToSleep(SystemClock.uptimeMillis());
+        } else if(option == 3) {
+            // Go to sleep here
+            PowerManager pm = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
+            pm.goToSleep(SystemClock.uptimeMillis());
+            wakeup();
+
+            //Prepare next cycle
+            mCounter.setText("Counter: "+counter);
+            String time = SystemProperties.get(PROPERTY_ACTION_DURATION, "60");
+            duration = Integer.valueOf(time).intValue();
+            mTextView01.setText(" "+duration);
+            mHandler.removeCallbacks(runnable);
+            if(mHandler!=null && total>counter) {
+                 mHandler.postDelayed(runnable, 1000);
+            }
         }
 
     }
@@ -274,7 +289,7 @@ public class Shutdown extends Activity {
         else if(suspendTime == 10) pos = 3;
 
         spinner_suspend.setSelection(pos,true);
-        if(option == 0 || option == 1) {
+        if(option == 0 || option == 1 || option == 3) {
             mSuspendTip.setVisibility(View.GONE);
             spinner_suspend.setVisibility(View.GONE);
         }
@@ -306,6 +321,7 @@ public class Shutdown extends Activity {
         if(option==0) RADIO_ID = R.id.radio_shutdown;
         else if(option == 1) RADIO_ID = R.id.radio_reboot;
         else if(option == 2) RADIO_ID = R.id.option_suspend;
+        else if(option == 3) RADIO_ID = R.id.option_screen;
         mRadioButtonAPI1 = (RadioButton) findViewById(RADIO_ID);
         mRadioButtonAPI1.toggle();
         mRadioGroupAPI.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {              
@@ -330,6 +346,12 @@ public class Shutdown extends Activity {
                     SystemProperties.set(PROPERTY_ACTION_OPTION, Integer.toString(option));
                     mSuspendTip.setVisibility(View.VISIBLE);
                     spinner_suspend.setVisibility(View.VISIBLE);
+                } else if(checkedId == R.id.option_screen) {
+                    option = 3;
+                    Toast.makeText(Shutdown.this, "screen", Toast.LENGTH_SHORT).show();
+                    SystemProperties.set(PROPERTY_ACTION_OPTION, Integer.toString(option));
+                    mSuspendTip.setVisibility(View.GONE);
+                    spinner_suspend.setVisibility(View.GONE);
                 }
             }
         });

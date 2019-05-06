@@ -10,6 +10,7 @@
     <string name="shut_down">shutdown</string>
     <string name="reboot">reboot</string>
     <string name="suspend">suspend</string>
+    <string name="screen">screen</string>
     <string name="total">Total: </string>
     <string name="counter">Counter: </string>
     <string name="ping_fail">Fail to ping: </string>
